@@ -1,90 +1,87 @@
 # FocusLab | Estudia con intención
 
-> Landing page + miniaplicación de productividad académica. Proyecto personal de portafolio creado con React, Vite y CSS responsive.
+[![Test and deploy FocusLab](https://github.com/katolanding/focuslab-student-dashboard/actions/workflows/deploy.yml/badge.svg)](https://github.com/katolanding/focuslab-student-dashboard/actions/workflows/deploy.yml)
 
+**Aplicación de productividad académica** desarrollada con React, Vite y CSS responsive. Incluye una landing page y un panel de organización personal.
 
-## Demo en vivo
-
-[Ver FocusLab funcionando](https://katolanding.github.io/focuslab-student-dashboard/)
+**[Abrir la aplicación en vivo](https://katolanding.github.io/focuslab-student-dashboard/)** · [Ver código fuente](https://github.com/katolanding/focuslab-student-dashboard) · [Ver ejecuciones CI/CD](https://github.com/katolanding/focuslab-student-dashboard/actions)
 
 ## Capturas de pantalla
 
 ### Landing page
-![Landing page de FocusLab](./landing.png)
+
+![Landing page real de FocusLab](./landing.png)
 
 ### Panel de productividad
+
 ![Panel de tareas de FocusLab](./dashboard.png)
 
 ### Temporizador Pomodoro
-![Temporizador Pomodoro](./pomodoro.png)
+
+![Temporizador Pomodoro de FocusLab](./pomodoro.png)
 
 ## Funcionalidades
 
-- Landing page con presentación del producto y navegación.
-- Panel de tareas: crear, editar, completar, filtrar y eliminar.
+- Gestión de tareas: crear, editar, completar, eliminar y filtrar.
 - Categorías, fechas de entrega y prioridades.
-- Calendario mensual con fechas que contienen tareas.
-- Temporizador Pomodoro: enfoque de 25 minutos y descansos de 5 y 15 minutos.
-- Resumen de tareas pendientes, completadas, para hoy y porcentaje completado.
-- Tema claro/oscuro.
-- Persistencia local en el navegador mediante `localStorage`.
-- Pruebas de utilidades con Node Test Runner y verificación con GitHub Actions.
+- Calendario mensual con indicación de tareas.
+- Temporizador Pomodoro para sesiones de 25 minutos y descansos de 5 y 15 minutos.
+- Resumen de tareas pendientes, completadas y para hoy; porcentaje de avance.
+- Modo claro y oscuro; diseño adaptable a celular.
+- Persistencia local mediante `localStorage`.
 
-## Ejecutar en tu PC
+## Tecnologías
 
-Necesitas **Node.js 20.19+ o 22+** y npm, con conexión a Internet para instalar dependencias la primera vez.
+**React 18 · JavaScript · Vite · CSS · Lucide React · Node Test Runner · GitHub Actions · GitHub Pages**
 
-```powershell
+## Instalación y ejecución local
+
+Requiere Node.js compatible con Vite 6 y npm.
+
+```bash
 npm install
 npm run dev
 ```
 
-Abre la dirección que aparezca en la terminal (habitualmente `http://localhost:5173`).
+Abre la dirección que indique Vite (habitualmente `http://localhost:5173`). Para ejecutar pruebas y generar la versión de producción:
 
-### Pruebas y versión de producción
-
-```powershell
+```bash
 npm test
 npm run build
 npm run preview
 ```
 
-## Publicar en GitHub Pages
+## Calidad y despliegue
 
-1. Crea un repositorio público llamado **`focuslab-student-dashboard`** en tu cuenta de GitHub.
-2. Sube **el contenido de esta carpeta** a la raíz del repositorio, incluida la carpeta oculta `.github/workflows`.
-3. En el repositorio, abre **Settings → Pages** y selecciona **Build and deployment → Source: GitHub Actions**.
-4. Ve a **Actions → Deploy to GitHub Pages** y confirma que el flujo se ejecutó correctamente. Al subir cambios a `main`, la publicación volverá a desplegarse.
-5. Tu URL prevista será `https://katolanding.github.io/focuslab-student-dashboard/` una vez que el despliegue termine correctamente.
+El flujo [`Test and deploy FocusLab`](https://github.com/katolanding/focuslab-student-dashboard/actions/workflows/deploy.yml) instala dependencias, ejecuta las pruebas y genera el sitio con Vite antes de desplegarlo en GitHub Pages. La ejecución consultada el **12 de noviembre de 2026** finalizó correctamente. El estado actualizado aparece en la insignia al comienzo del README.
 
-**Nota:** `vite.config.js` contiene la ruta `/focuslab-student-dashboard/`. Si renombras el repositorio, cambia esa ruta también.
+El proyecto utiliza `base: '/focuslab-student-dashboard/'` cuando se compila para GitHub Pages. Si se cambia el nombre del repositorio, debe actualizarse esa ruta en `vite.config.js`.
 
 ## Estructura
 
 ```text
-src/App.jsx        Interfaz y funcionalidades del proyecto
-src/styles.css     Diseño adaptable y temas claro/oscuro
-src/utils.js       Fechas, validaciones y cálculos de tareas
-src/main.jsx       Punto de entrada de React
-tests/             Pruebas automatizadas
-.github/workflows/ CI y despliegue GitHub Pages
+src/App.jsx           Interfaz y funcionalidades
+src/styles.css        Diseño responsive y temas
+src/utils.js          Validaciones y cálculos de tareas
+src/main.jsx          Entrada de React
+tests/                Pruebas automatizadas
+.github/workflows/     Pruebas y despliegue en GitHub Pages
+landing.png           Captura de portada
+dashboard.png         Captura del panel
+pomodoro.png          Captura del temporizador
 ```
-
-## Validación actual
-
-Las seis pruebas de `src/utils.js` se ejecutaron correctamente en el entorno de preparación. La compilación web completa debe comprobarse con `npm install` y `npm run build` en un entorno con acceso al registro npm.
 
 ## Alcance y privacidad
 
-Esta es una **beta sin autenticación ni backend**. Las tareas se guardan solamente en `localStorage` del navegador que usas: no se sincronizan entre dispositivos ni se respaldan en la nube. El temporizador funciona mientras la pestaña permanece abierta; no pretende ser un cronómetro de precisión en segundo plano. No introduzcas datos sensibles reales. Las tareas iniciales son demostrativas.
+**Proyecto de portafolio en fase beta, sin cuentas ni backend.** Las tareas se almacenan en el navegador utilizado; no existe sincronización ni respaldo en la nube. No ingreses información sensible. El temporizador funciona mientras la pestaña está abierta y no es un cronómetro preciso en segundo plano.
 
 ## Próximas mejoras
 
-- Accesibilidad: auditoría con Lighthouse y navegación por teclado.
-- Filtros por fecha y búsqueda.
-- Registro de sesiones Pomodoro y estadísticas históricas.
-- Backend y cuentas con autenticación real, si se decide llevar a producción.
+- Accesibilidad: navegación con teclado y auditoría Lighthouse.
+- Búsqueda y filtros por fecha.
+- Registro histórico de sesiones de concentración.
+- Autenticación y base de datos, únicamente en una futura versión con controles de seguridad apropiados.
 
 ## Autoría
 
-Proyecto de práctica y aprendizaje para portafolio de desarrollo frontend. Comprende las funcionalidades y realiza mejoras propias antes de presentarlo en entrevistas.
+Proyecto personal de aprendizaje y portafolio.
