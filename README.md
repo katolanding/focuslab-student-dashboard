@@ -2,6 +2,22 @@
 
 > Landing page + miniaplicación de productividad académica. Proyecto personal de portafolio creado con React, Vite y CSS responsive.
 
+
+## Demo en vivo
+
+[Ver FocusLab funcionando](https://katolanding.github.io/focuslab-student-dashboard/)
+
+## Capturas de pantalla
+
+### Landing page
+![Landing page de FocusLab](./landing.png)
+
+### Panel de productividad
+![Panel de tareas de FocusLab](./dashboard.png)
+
+### Temporizador Pomodoro
+![Temporizador Pomodoro](./pomodoro.png)
+
 ## Funcionalidades
 
 - Landing page con presentación del producto y navegación.
