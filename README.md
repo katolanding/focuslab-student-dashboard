@@ -1,4 +1,4 @@
-# FocusLab — Estudia con intención
+# FocusLab | Estudia con intención
 
 > Landing page + miniaplicación de productividad académica. Proyecto personal de portafolio creado con React, Vite y CSS responsive.
 
