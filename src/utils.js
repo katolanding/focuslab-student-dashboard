@@ -34,6 +34,26 @@ export function makeStarterTasks(today = localDay()) {
   ];
 }
 
+function normalizeSearch(text) {
+  return text.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+}
+
+export function filterTasks(tasks, filter, query = '') {
+  const search = normalizeSearch(query.trim());
+
+  return tasks.filter(task => {
+    const matchesStatus = filter === 'Todas' ||
+      (filter === 'Pendientes' && !task.done) ||
+      (filter === 'Completadas' && task.done);
+
+    return matchesStatus && (
+      !search ||
+      normalizeSearch(task.title).includes(search) ||
+      normalizeSearch(task.category).includes(search)
+    );
+  }).sort((a, b) => (a.done - b.done) || a.date.localeCompare(b.date));
+}
+
 export function taskStats(tasks, today = localDay()) {
   const completed = tasks.filter(task => task.done).length;
   const pending = tasks.length - completed;
