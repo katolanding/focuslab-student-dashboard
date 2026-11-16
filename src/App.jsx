@@ -5,7 +5,7 @@ import {
   Menu, Moon, Pause, Play, Plus, RotateCcw, Sparkles, Sun, Target, Timer,
   Trash2, X, Zap
 } from 'lucide-react';
-import { addDays, isValidTask, localDay, makeStarterTasks, monthDays, prettyDate, taskStats, STORAGE_KEY, THEME_KEY } from './utils.js';
+import { addDays, filterTasks, isValidTask, localDay, makeStarterTasks, monthDays, prettyDate, taskStats, STORAGE_KEY, THEME_KEY } from './utils.js';
 
 const TODAY = localDay();
 const filters = ['Todas', 'Pendientes', 'Completadas'];
@@ -67,13 +67,15 @@ function TaskModal({ task, onClose, onSave }) {
 function Dashboard({ tasks, setTasks, onHome }) {
   const [tab, setTab] = useState('Resumen');
   const [filter, setFilter] = useState('Todas');
+  const [taskQuery, setTaskQuery] = useState('');
   const [modal, setModal] = useState(undefined);
   const [month, setMonth] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(TODAY);
   const [mobileMenu, setMobileMenu] = useState(false);
   const stats = useMemo(() => taskStats(tasks, TODAY), [tasks]);
   const tabs = [{label:'Resumen',icon:LayoutDashboard},{label:'Mis tareas',icon:ListTodo},{label:'Calendario',icon:CalendarDays},{label:'Pomodoro',icon:Timer}];
-  const taskList = useMemo(()=>tasks.filter(t=>filter==='Todas'||(filter==='Pendientes'&&!t.done)||(filter==='Completadas'&&t.done)).sort((a,b)=>(a.done-b.done)||a.date.localeCompare(b.date)),[tasks,filter]);
+  const activeQuery = tab === 'Mis tareas' ? taskQuery : '';
+  const taskList = useMemo(() => filterTasks(tasks, filter, activeQuery), [tasks, filter, activeQuery]);
   const saveTask = data => { if(modal && modal !== 'new') setTasks(current=>current.map(t=>t.id===modal.id?{...t,...data}:t)); else setTasks(current=>[{id:globalThis.crypto?.randomUUID?.() ?? String(Date.now())+Math.random(),...data,done:false},...current]);setModal(undefined);};
   const toggleTask = id => setTasks(current=>current.map(t=>t.id===id?{...t,done:!t.done}:t));
   const deleteTask = id => {if(window.confirm('¿Eliminar esta tarea?')) setTasks(current=>current.filter(t=>t.id!==id));};
@@ -81,7 +83,20 @@ function Dashboard({ tasks, setTasks, onHome }) {
   const chosenTasks = tasks.filter(t=>t.date===selectedDay);
   return <section id="dashboard" className="workspace"><aside className={'sidebar '+(mobileMenu?'menu-open':'')}><button className="brand sidebar-brand" onClick={onHome}><span className="brand-mark"><Zap size={20} fill="currentColor"/></span>focus<span>lab</span><span className="brand-dot">.</span></button><div className="sidebar-section-label">TU ESPACIO</div><nav className="sidebar-nav" aria-label="Navegación del panel">{tabs.map(({label,icon:Icon})=><button key={label} className={tab===label?'active':''} onClick={()=>{setTab(label);setMobileMenu(false);}}><Icon size={18}/>{label}{tab===label&&<span className="nav-indicator"/>}</button>)}</nav><div className="sidebar-bottom"><div className="sidebar-tip"><Sparkles size={18}/><strong>Un día a la vez</strong><p>El progreso se construye con pequeños pasos.</p></div><button className="back-home" onClick={onHome}><ChevronLeft size={17}/> Volver al inicio</button></div></aside><div className="dashboard-main"><div className="dash-topbar"><div><button className="mobile-nav-toggle" onClick={()=>setMobileMenu(v=>!v)} aria-label="Abrir menú"><Menu size={21}/></button><span className="topbar-breadcrumb">MI ESPACIO <ChevronRight size={14}/> <strong>{tab.toUpperCase()}</strong></span></div><div className="topbar-date"><CalendarDays size={16}/> {new Intl.DateTimeFormat('es-CL',{weekday:'long',day:'numeric',month:'long'}).format(new Date())}</div></div>
   <main className="dash-content">{tab==='Resumen' && <><div className="dash-welcome"><div><span className="overline">TU PANEL PERSONAL</span><h1>Hola, estudiante <span className="wave">✳</span></h1><p>Cada pequeño avance cuenta. ¿Qué vas a lograr hoy?</p></div><button className="primary-cta" onClick={()=>setModal('new')}><Plus size={18}/> Nueva tarea</button></div><div className="stat-grid"><Stat icon={ListTodo} color="purple" value={stats.pending} label="Tareas pendientes" foot="Por completar"/><Stat icon={CheckCheck} color="green" value={stats.completed} label="Tareas completadas" foot="¡Sigue así!"/><Stat icon={Target} color="pink" value={stats.todayCount} label="Para hoy" foot="Tu enfoque del día"/><Stat icon={BarChart3} color="blue" value={`${stats.percent}%`} label="Tu progreso" foot="Tareas completadas"/></div><div className="dash-section-row"><div><h2>Tu lista de tareas</h2><p>Prioriza lo importante y sigue avanzando.</p></div><button className="subtle-link" onClick={()=>setTab('Mis tareas')}>Ver todas <ArrowRight size={16}/></button></div><TaskList tasks={taskList.slice(0,5)} toggle={toggleTask} edit={setModal} remove={deleteTask} emptyText="No tienes tareas aún. ¡Crea la primera!"/><div className="motivator"><div className="motivator-icon"><Sparkles size={22}/></div><div><strong>El secreto está en la constancia.</strong><p>No necesitas hacerlo todo hoy. Empieza por lo siguiente.</p></div><button onClick={()=>setTab('Pomodoro')}>Enfocarme <ArrowRight size={16}/></button></div></>}
-  {tab==='Mis tareas' && <><div className="dash-welcome"><div><span className="overline">EN ORDEN, A TU RITMO</span><h1>Mis tareas</h1><p>Todo lo que tienes pendiente, en un solo lugar.</p></div><button className="primary-cta" onClick={()=>setModal('new')}><Plus size={18}/> Nueva tarea</button></div><div className="filter-row">{filters.map(f=><button key={f} className={filter===f?'selected':''} onClick={()=>setFilter(f)}>{f}</button>)}</div><TaskList tasks={taskList} toggle={toggleTask} edit={setModal} remove={deleteTask} emptyText="No hay tareas en esta vista."/></>}
+  {tab==='Mis tareas' && <>
+    <div className="dash-welcome"><div><span className="overline">EN ORDEN, A TU RITMO</span><h1>Mis tareas</h1><p>Todo lo que tienes pendiente, en un solo lugar.</p></div><button className="primary-cta" onClick={()=>setModal('new')}><Plus size={18}/> Nueva tarea</button></div>
+    <input
+      className="task-search"
+      type="search"
+      aria-label="Buscar tareas por título o categoría"
+      placeholder="Buscar por título o categoría"
+      value={taskQuery}
+      onChange={event => setTaskQuery(event.target.value)}
+    />
+    <div className="filter-row">{filters.map(f=><button key={f} className={filter===f?'selected':''} onClick={()=>setFilter(f)}>{f}</button>)}</div>
+    <TaskList tasks={taskList} toggle={toggleTask} edit={setModal} remove={deleteTask}
+      emptyText={taskQuery.trim() ? 'No hay tareas que coincidan con la búsqueda y el filtro.' : 'No hay tareas en esta vista.'}/>
+  </>}
   {tab==='Calendario' && <><div className="dash-welcome"><div><span className="overline">VISUALIZA LO QUE VIENE</span><h1>Calendario</h1><p>Tus tareas, distribuidas en el tiempo.</p></div><button className="primary-cta" onClick={()=>{setModal('new')}}><Plus size={18}/> Nueva tarea</button></div><div className="calendar-layout"><div className="calendar-panel"><div className="calendar-header"><h2>{monthFmt.format(month)}</h2><div><button aria-label="Mes anterior" onClick={()=>goMonth(-1)}><ChevronLeft size={18}/></button><button aria-label="Mes siguiente" onClick={()=>goMonth(1)}><ChevronRight size={18}/></button></div></div><div className="calendar-grid">{['L','M','M','J','V','S','D'].map((d,i)=><div className="weeklabel" key={i}>{d}</div>)}{monthDays(month.getFullYear(),month.getMonth()).map((day,i)=>{if(!day)return <span key={'empty-'+i}/>;const date=localDay(new Date(month.getFullYear(),month.getMonth(),day));const count=tasks.filter(t=>t.date===date).length;return <button className={'cal-day '+(date===TODAY?'today ':'')+(date===selectedDay?'chosen':'')} key={date} onClick={()=>setSelectedDay(date)} aria-label={`${day} de ${monthFmt.format(month)}, ${count} tareas`}><span>{day}</span>{count>0&&<i className="day-dot"/>}</button>;})}</div><div className="calendar-legend"><i className="day-dot"/> Día con tareas</div></div><div className="day-agenda"><span className="overline">AGENDA DEL DÍA</span><h3>{prettyDate(selectedDay)}</h3>{chosenTasks.length?chosenTasks.map(t=><div className="agenda-task" key={t.id}><span className={t.done?'agenda-dot done':'agenda-dot'}/><div><strong>{t.title}</strong><small>{t.category} · {t.priority}</small></div></div>):<p className="empty-agenda">No hay tareas para este día.</p>}<button className="day-cta" onClick={()=>{setModal('new')}}><Plus size={16}/> Añadir tarea</button></div></div></>}
   {tab==='Pomodoro' && <Pomodoro/>}
   </main></div>{modal!==undefined&&<TaskModal key={modal==='new'?'new':modal.id} task={modal==='new'?null:modal} onClose={()=>setModal(undefined)} onSave={saveTask}/>}</section>;
